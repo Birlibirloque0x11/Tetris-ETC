@@ -3,14 +3,6 @@
         
 	.data	
 
-signo_menos:
-	.asciiz	"-"
-puntos:
-    .space 256
-
-puntuacion:
-    .word 0
-
 pantalla:
 	.word	0
 	.word	0
@@ -113,129 +105,39 @@ str001:
 str002:
 	.asciiz		"\nOpci√≥n incorrecta. Pulse cualquier tecla para seguir.\n"
 str003:
-    	.asciiz     "Puntuacion: \n"
+    	.asciiz     	"Puntuacion: \n"
+signo_menos:
+	.asciiz		"-"
+puntos:
+    	.space 256
+puntuacion:
+    	.word 0
 end0:
-    	.asciiz     "+--------------+"
+    	.asciiz     	"+--------------+"
 end1:
-    	.asciiz     "|  GAME  OVER  |"
+    	.asciiz     	"|  GAME  OVER  |"
 end2:
-    	.asciiz     "|              |"
+    	.asciiz     	"|              |"
 end3:
-    	.asciiz     "|    PRESS     |"
+    	.asciiz     	"|    PRESS     |"
 end4:
-    	.asciiz     "|    BUTTON    |"
+    	.asciiz     	"|    BUTTON    |"
 end5:
-    	.asciiz     "+--------------+"   	
-
+    	.asciiz     	"+--------------+"   	
 next0:
-	.asciiz     "+------+"
+	.asciiz    	 "+------+"
 next1:
-	.asciiz     "|      |"
+	.asciiz     	"|      |"
 next2:
-	.asciiz     "|      |"
+	.asciiz     	"|      |"
 next3:
-	.asciiz     "|      |"
+	.asciiz     	"|      |"
 next4:
-	.asciiz     "|      |"
+	.asciiz     	"|      |"
 next5:
-	.asciiz     "+------+"
-
-
-
+	.asciiz     	"+------+"
+	
 	.text	
-
-imagen_pixel_addr:			# ($a0, $a1, $a2) = (imagen, x, y)
-					# pixel_addr = &data + y*ancho + x
-    	lw	$t1, 0($a0)		# $a0 = direcci√≥n de la imagen 
-					# $t1 ‚Ü? ancho
-    	mul	$t1, $t1, $a2		# $a2 * ancho
-    	addu	$t1, $t1, $a1		# $a2 * ancho + $a1
-    	addiu	$a0, $a0, 8		# $a0 ‚Ü? direcci√≥n del array data
-    	addu	$v0, $a0, $t1		# $v0 = $a0 + $a2 * ancho + $a1
-    	jr	$ra
-
-imagen_get_pixel:			# ($a0, $a1, $a2) = (img, x, y)
-	addiu	$sp, $sp, -4
-	sw	$ra, 0($sp)		# guardamos $ra porque haremos un jal
-	jal	imagen_pixel_addr	# (img, x, y) ya en ($a0, $a1, $a2)
-	lbu	$v0, 0($v0)		# lee el pixel a devolver
-	lw	$ra, 0($sp)
-	addiu	$sp, $sp, 4
-	jr	$ra
-
-imagen_set_pixel:	# ($a0, $a1, $a2, $a3) = (*img, x, y, color)
-	#void imagen_set_pixel(Imagen *img, int x, int y, Pixel color) {
-  	#Pixel *pixel = imagen_pixel_addr(*img, x, y);
-  	#*pixel = color;
-	#}
-	addiu	$sp, $sp, -8
-	sw 	$ra, 4($sp)
-	sw	$s0, 0($sp)
-	
-	move 	$s0, $a3
-	jal 	imagen_pixel_addr
-	sb 	$s0, 0($v0)
-	
-	lw 	$s0, 0($sp)
-	lw	$ra, 4($sp)
-	addiu	$sp, $sp, 8
-	jr 	$ra				
-	
-	
-imagen_clean:		# ($a0, $a1) = (*img, fondo)
-	# void imagen_clean(Imagen *img, Pixel fondo) {
- 	#    for (int y = 0; y < img->alto; ++y) {
-    	#       for (int x = 0; x < img->ancho; ++x) {
-  	#           imagen_set_pixel(*img, x, y, fondo);
- 	#       }
- 	#    }
-	# } 
-	
-	addiu	$sp, $sp, -28
-	sw	$ra, 24($sp)
-	sw	$s0, 20($sp)		
-	sw	$s1, 16($sp)
-	sw	$s2, 12($sp)
-	sw	$s3, 8($sp)
-	sw	$s4, 4($sp)
-	sw	$s5, 0($sp)
-	
-	move	$s2, $a0
-	move	$s3, $a1
-	lw	$s4, 4($s2)
-	lw	$s5, 0($s2)
-	
-	# for (int y = 0; y < img->alto; ++y) {
-	li 	$s0, 0
-ic_1:	bge  	$s0, $s4, ic_2
-	
-	# for (int x = 0; x < img->ancho; ++x)
-	li	$s1, 0
-ic_3:	bge	$s1, $s5, ic_4
-	
-	move	$a3, $a1
-	move	$a1, $s1
-	move	$a2, $s0
-	jal 	imagen_set_pixel
-	move 	$a0, $s2
-	move	$a1, $s3
-	
-	addiu	$s1, $s1, 1
-	j	ic_3
-	
-ic_4:	addiu	$s0, $s0, 1
-	j	ic_1
-	
-ic_2:	lw	$s5, 0($sp)
-	lw	$s4, 4($sp)
-	lw	$s3, 8($sp)
-	lw	$s2, 12($sp)
-	lw 	$s1, 16($sp)
-	lw	$s0, 20($sp)
-	lw	$ra, 24($sp)
-	addiu	$sp, $sp, 28	
-     	jr $ra
-     	
      	
 game_over:	
 	addiu	$sp, $sp, -4
@@ -298,7 +200,7 @@ go_0:
 
 
 
-comprobar_linea:  
+linea:  
 	addiu	$sp, $sp, -24
 	sw	$ra, 20($sp)
 	sw	$s0, 16($sp)		
@@ -312,30 +214,30 @@ comprobar_linea:
 	lw	$s2, 4($s0)
         
         li	$s3, 0
-cl_1:   
-	bge	$s3, $s2, cl_4
+l_1:   
+	bge	$s3, $s2, l_4
 	
         li	$s4, 0
-cl_2:   
-	bge	$s4, $s1, cl_5
+l_2:   
+	bge	$s4, $s1, l_5
 	move 	$a0, $s0
 	move	$a1, $s4
 	move	$a2, $s3
 	jal	imagen_get_pixel
-	beqz 	$v0, cl_3
+	beqz 	$v0, l_3
 	addi	$s4, $s4, 1
-	j 	cl_2
+	j 	l_2
 	
-cl_5:	
+l_5:	
 	lw	$t0, puntuacion
 	addi	$t0, $t0, 10
 	sw	$t0, puntuacion
 	move	$a0, $s3
 	jal eliminar_linea	
-cl_3:
+l_3:
 	addi	$s3, $s3, 1
-	j	cl_1        
-cl_4:	
+	j	l_1        
+l_4:	
 	lw	$s4, 0($sp)
 	lw	$s3, 4($sp)
 	lw	$s2, 8($sp)
@@ -406,6 +308,94 @@ el_fin:
 	addiu	$sp, $sp, 24	
      	jr 	$ra
         
+        imagen_pixel_addr:			# ($a0, $a1, $a2) = (imagen, x, y)
+					# pixel_addr = &data + y*ancho + x
+    	lw	$t1, 0($a0)		# $a0 = direcci√≥n de la imagen 
+					# $t1 ‚Ü? ancho
+    	mul	$t1, $t1, $a2		# $a2 * ancho
+    	addu	$t1, $t1, $a1		# $a2 * ancho + $a1
+    	addiu	$a0, $a0, 8		# $a0 ‚Ü? direcci√≥n del array data
+    	addu	$v0, $a0, $t1		# $v0 = $a0 + $a2 * ancho + $a1
+    	jr	$ra
+
+imagen_get_pixel:			# ($a0, $a1, $a2) = (img, x, y)
+	addiu	$sp, $sp, -4
+	sw	$ra, 0($sp)		# guardamos $ra porque haremos un jal
+	jal	imagen_pixel_addr	# (img, x, y) ya en ($a0, $a1, $a2)
+	lbu	$v0, 0($v0)		# lee el pixel a devolver
+	lw	$ra, 0($sp)
+	addiu	$sp, $sp, 4
+	jr	$ra
+
+imagen_set_pixel:
+	#void imagen_set_pixel(Imagen *img, int x, int y, Pixel color) {
+  	#Pixel *pixel = imagen_pixel_addr(*img, x, y);
+  	#*pixel = color;
+	#}
+    	addiu   $sp,$sp,-8
+    	sw	$ra,0($sp)
+   	sw	$s3,4($sp)
+
+    	move 	$s3,$a3
+    	jal 	imagen_pixel_addr
+    	sb 	$s3,0($v0)
+
+	lw	$ra,0($sp)
+    	lw	$s3,4($sp)
+    	addiu	$sp,$sp,8
+    	jr	$ra			
+	
+	
+imagen_clean:
+	# void imagen_clean(Imagen *img, Pixel fondo) {
+ 	#    for (int y = 0; y < img->alto; ++y) {
+    	#       for (int x = 0; x < img->ancho; ++x) {
+  	#           imagen_set_pixel(*img, x, y, fondo);
+ 	#       }
+ 	#    }
+	# } 
+	
+   	addiu 	$sp,$sp,-28
+	sw	$ra,0($sp)
+    	sw	$s0,4($sp)
+    	sw	$s1,8($sp)
+    	sw	$s2,12($sp)
+    	sw	$s3,16($sp)
+    	sw	$s4,20($sp)
+    	sw	$s5,24($sp)
+
+    	move	$s0,$a0
+    	move	$s1,$a1
+    	lw	$s2, 0($s0)
+    	lw	$s3, 4($s0)
+    	li	$s4,0
+icl_1:
+	bge	$s4,$s3,icl_2
+	li	$s5,0
+icl_3:
+	bge	$s5,$s2,icl_4
+	move	$a0,$s0
+	move	$a1,$s5
+	move	$a2,$s4
+	move	$a3,$s1
+	jal	imagen_set_pixel
+	addiu	$s5,$s5,1
+	j	icl_3
+icl_4:
+	addiu	$s4,$s4,1
+	j	icl_1
+icl_2:
+	lw	$ra,0($sp)
+	lw	$s0,4($sp)
+	lw	$s1,8($sp)
+	lw	$s2,12($sp)
+	lw	$s3,16($sp)
+	lw	$s4,20($sp)
+	lw	$s5,24($sp)
+	addiu	$sp,$sp,28
+	jr	$ra
+     	
+        
 imagen_init:
 	# void imagen_init(Imagen *img, int ancho, int alto, Pixel fondo) {
   	# 	img->ancho = ancho;
@@ -413,18 +403,15 @@ imagen_init:
   	# 	imagen_clean(*img, fondo);
 	# }
 	
-	addiu 	$sp, $sp, -4
-	sw 	$ra, 0($sp)
-	
-	sw	$a1, 0($a0)
-	sw	$a2, 4($a0)
-	
-	move 	$a1, $a3
-	jal 	imagen_clean		
-	
-	lw	$ra, 0($sp)
-	addiu	$sp, $sp, 4
-	jr $ra
+    	addiu	$sp,$sp,-4
+    	sw	$ra,0($sp)
+    	sw	$a1, 0($a0)
+    	sw	$a2, 4($a0)
+    	move	$a1,$a3	
+       	jal 	imagen_clean
+    	lw	$ra,0($sp)
+    	addiu	$sp,$sp,4
+    	jr	$ra
 
 imagen_copy:
 	# void imagen_copy(Imagen *dst, Imagen *src) {
@@ -438,70 +425,54 @@ imagen_copy:
   	#   }
 	# }
 
-	addiu	$sp, $sp, -28
-	sw	$ra, 24($sp)
-	sw	$s0, 20($sp)		
-	sw	$s1, 16($sp)
-	sw	$s2, 12($sp)
-	sw	$s3, 8($sp)
-	sw	$s4, 4($sp)
-	sw	$s5, 0($sp)
-
-	move	$s4, $a0
-	move	$s5, $a1
-	
-	lw	$s0, 0($s5)
-	sw	$s0, 0($s4)
-	
-	lw	$s1, 4($s5)
-	sw 	$s1, 4($s4)
-
-	# for (int y = 0; y < src->alto; ++y) {
-	li 	$s2, 0
-ico_1:	
-	bge	$s2, $s1, ico_2
-	# for (int x = 0; x < src->ancho; ++x) {
-	li	$s3, 0
+	addiu	$sp,$sp,-28
+    	sw	$ra,0($sp)
+    	sw	$s0,4($sp)
+    	sw	$s1,8($sp)
+    	sw	$s2,12($sp)
+    	sw	$s3,16($sp)
+    	sw	$s4,20($sp)
+    	sw	$s5,24($sp)
+    	move	$s0,$a0
+    	move	$s1,$a1
+    	lw	$s2, 0($s1)
+    	lw	$s3, 4($s1)
+    	sw	$s2, 0($s0)
+    	sw	$s3, 4($s0)
+	li	$s4, 0	
+ico_1:
+    	bge	$s4, $s3, ico_2
+    	li	$s5, 0
 ico_3:
-	bge	$s3, $s0, ico_4
-	move 	$a0, $s5
-	move	$a1, $s3
-	move	$a2, $s2
-	jal 	imagen_get_pixel
-	move	$a3, $v0
-	move	$a0, $s4
-	move	$a1, $s3
-	move	$a2, $s2
-	jal imagen_set_pixel
-	
-	addiu	$s3, $s3, 1
-	j	ico_3
-ico_4:	
-	addiu	$s2, $s2, 1
-	j	ico_1	
-ico_2:	
-	lw	$s5, 0($sp)
-	lw	$s4, 4($sp)
-	lw	$s3, 8($sp)
-	lw	$s2, 12($sp)
-	lw 	$s1, 16($sp)
-	lw	$s0, 20($sp)
-	lw	$ra, 24($sp)
-	addiu	$sp, $sp, 28	
-     	jr $ra	
+    	bge	$s5, $s2, ico_4
+    	move	$a0, $s1
+    	move	$a1, $s5
+    	move	$a2, $s4
+    	jal	imagen_get_pixel
+    	move	$a0, $s0
+    	move	$a1, $s5
+    	move	$a2, $s4
+    	move	$a3, $v0
+    	jal	imagen_set_pixel
+    	addiu	$s5,$s5,1
+    	j	ico_3
+ico_4:
+    	addiu	$s4,$s4,1
+	j	ico_1
+ico_2:
+    	lw	$ra,0($sp)
+    	lw	$s0,4($sp)
+    	lw	$s1,8($sp)
+    	lw	$s2,12($sp)
+    	lw	$s3,16($sp)
+    	lw	$s4,20($sp)
+    	lw	$s5,24($sp)
+    	addiu	$sp,$sp,28
+    	jr	$ra
 
 
 
 imagen_print:				# $a0 = img
-	# void imagen_print(Imagen *img) {
-	#   for (int y = 0; y < img->alto; ++y) {
-	#     for (int x = 0; x < img->ancho; ++x) {
-	#       Pixel p = imagen_get_pixel(img, x, y);
-	#       print_character(p);
-	#     }
-	#     print_character('\n');
-	#   }
-	# }
 	addiu	$sp, $sp, -24
 	sw	$ra, 20($sp)
 	sw	$s4, 16($sp)
@@ -510,31 +481,29 @@ imagen_print:				# $a0 = img
 	sw	$s1, 4($sp)
 	sw	$s0, 0($sp)
 	move	$s0, $a0
-	lw	$s3, 4($s0)
-	lw	$s4, 0($s0)
+	lw	$s3, 4($s0)		# img->alto
+	lw	$s4, 0($s0)		# img->ancho
         #  for (int y = 0; y < img->alto; ++y)
-	li	$s1, 0
-B6_2:	
-	bgeu	$s1, $s3, B6_5
+	li	$s1, 0			# y = 0
+B6_2:	bgeu	$s1, $s3, B6_5		# acaba si y ‚â• img->alto
 	#    for (int x = 0; x < img->ancho; ++x)
-	li	$s2, 0
-B6_3:
-	bgeu	$s2, $s4, B6_4
-	move	$a0, $s0
+	li	$s2, 0			# x = 0
+B6_3:	bgeu	$s2, $s4, B6_4		# acaba si x ‚â• img->ancho
+	move	$a0, $s0		# Pixel p = imagen_get_pixel(img, x, y)
 	move	$a1, $s2
 	move	$a2, $s1
 	jal	imagen_get_pixel
-	move	$a0, $v0
+	move	$a0, $v0		# print_character(p)
 	jal	print_character
-	addiu	$s2, $s2, 1
+	addiu	$s2, $s2, 1		# ++x
 	j	B6_3
-B6_4:
-	li	$a0, 10
+	#    } // for x
+B6_4:	li	$a0, 10			# print_character('\n')
 	jal	print_character
-	addiu	$s1, $s1, 1
+	addiu	$s1, $s1, 1		# ++y
 	j	B6_2
-B6_5:
-	lw	$s0, 0($sp)
+	#  } // for y
+B6_5:	lw	$s0, 0($sp)
 	lw	$s1, 4($sp)
 	lw	$s2, 8($sp)
 	lw	$s3, 12($sp)
@@ -543,7 +512,7 @@ B6_5:
 	addiu	$sp, $sp, 24
 	jr	$ra
 
-imagen_dibuja_imagen:
+imagen_dibuja_imagen:			
 	# void imagen_dibuja_imagen(Imagen *dst, Imagen *src, int dst_x, int dst_y) {
   	#    for (int y = 0; y < src->alto; ++y) {
     	#       for (int x = 0; x < src->ancho; ++x) {
@@ -554,69 +523,59 @@ imagen_dibuja_imagen:
     	#       }
   	#    }
 	# }
-
-	addiu	$sp, $sp, -36
-	sw	$ra, 32($sp)
-	sw	$s7, 28($sp)
-	sw	$s6, 24($sp)
-	sw	$s5, 20($sp)
-	sw	$s4, 16($sp)
-	sw	$s3, 12($sp)
-	sw	$s2, 8($sp)
-	sw	$s1, 4($sp)
-	sw	$s0, 0($sp)
-
-	move	$s0, $a0
-	move	$s1, $a1
-	move 	$s2, $a2
-	move 	$s3, $a3
-	lw	$s4, 4($s1)
-	lw	$s5, 0($s1)
 	
-	# for (int y = 0; y < src->alto; ++y) {
-	li 	$s6, 0
-idi_1:	bge	$s6, $s4, idi_2
-	# for (int x = 0; x < src->ancho; ++x) {
-	li	$s7, 0
-
-idi_3:	bge	$s7, $s5, idi_4
-
-	move 	$a0, $s1
-	move	$a1, $s7
-	move	$a2, $s6
-	jal 	imagen_get_pixel
-
-	beqz   	$v0, idi_31
-
-	move 	$a0, $s0
-	add	$a1, $s2, $s7
-	add	$a2, $s3, $s6
-	move	$a3, $v0
-	jal 	imagen_set_pixel
-
-idi_31:
-	addiu	$s7, $s7, 1
-	j	idi_3
-	
+    	addiu	$sp, $sp, -36
+    	sw	$ra, 0($sp)
+    	sw	$s0, 4($sp)
+    	sw	$s1, 8($sp)
+    	sw	$s2, 12($sp)
+    	sw	$s3, 16($sp)
+    	sw	$s4, 20($sp)
+    	sw	$s5, 24($sp)
+    	sw	$s6, 28($sp)
+    	sw	$s7, 32($sp)
+    	move 	$s0,$a0	
+    	move 	$s1,$a1	
+    	move 	$s2,$a2	
+    	move 	$s3,$a3	
+    	lw	$s4, 0($s1)
+    	lw	$s5, 4($s1)
+    	li	$s6, 0
+idi_1:
+    	bge	$s6, $s5, idi_2
+    	li	$s7, 0
+idi_3:
+    	bge	$s7, $s4, idi_4
+    	move	$a0, $s1
+    	move	$a1, $s7
+    	move	$a2, $s6
+    	jal	imagen_get_pixel
+    	beqz	$v0, idi_5
+    	move	$a0, $s0
+    	add	$a1, $s2, $s7
+    	add	$a2, $s3, $s6
+    	move	$a3, $v0
+    	jal	imagen_set_pixel
+idi_5:
+    	addiu	$s7, $s7, 1
+    	j	idi_3
 idi_4:
-	addiu	$s6, $s6, 1
-	j	idi_1
-
+    	addiu	$s6, $s6, 1
+    	j	idi_1
 idi_2:
-	lw	$s0, 0($sp)
-	lw	$s1, 4($sp)
-	lw	$s2, 8($sp)
-	lw	$s3, 12($sp)
-	lw	$s4, 16($sp)
-	lw	$s5, 20($sp)
-	lw	$s6, 24($sp)
-	lw	$s7, 28($sp)
-	lw	$ra, 32($sp)
-	addiu	$sp, $sp, 36
-	jr	$ra
+    	lw	$ra, 0($sp)
+    	lw	$s0, 4($sp)
+    	lw	$s1, 8($sp)
+    	lw	$s2, 12($sp)
+    	lw	$s3, 16($sp)
+    	lw	$s4, 20($sp)
+    	lw	$s5, 24($sp)
+    	lw	$s6, 28($sp)
+    	lw	$s7, 32($sp)
+    	addiu	$sp, $sp, 36
+    	jr	$ra
 
 imagen_dibuja_imagen_rotada:
-	
 	# void imagen_dibuja_imagen_rotada(Imagen *dst, Imagen *src, int dst_x, int dst_y) {
   	#    for (int y = 0; y < src->alto; ++y) {
     	#       for (int x = 0; x < src->ancho; ++x) {
@@ -629,66 +588,58 @@ imagen_dibuja_imagen_rotada:
       	# }
 
 	addiu	$sp, $sp, -36
-	sw	$ra, 32($sp)
-	sw	$s7, 28($sp)
-	sw	$s6, 24($sp)
-	sw	$s5, 20($sp)
-	sw	$s4, 16($sp)
-	sw	$s3, 12($sp)
-	sw	$s2, 8($sp)
-	sw	$s1, 4($sp)
-	sw	$s0, 0($sp)
+    	sw	$ra, 0($sp)
+    	sw	$s0, 4($sp)
+    	sw	$s1, 8($sp)
+    	sw	$s2, 12($sp)
+    	sw	$s3, 16($sp)
+    	sw	$s4, 20($sp)
+    	sw	$s5, 24($sp)
+    	sw	$s6, 28($sp)
+    	sw	$s7, 32($sp)
+    	move 	$s0,$a0
+    	move 	$s1,$a1
+    	move 	$s2,$a2
+    	move 	$s3,$a3
+    	lw	$s4, 0($s1)
+    	lw	$s5, 4($s1)
+    	li	$s6, 0
+idir_1:
+    	bge	$s6, $s5, idir_2 
+    	li	$s7, 0
+idir_3:
+    	bge	$s7, $s4, idir_4
 
-	move	$s0, $a0
-	move	$s1, $a1
-	move 	$s2, $a2
-	move 	$s3, $a3
-	lw	$s4, 4($s1)
-	lw	$s5, 0($s1)
-	
-	# for (int y = 0; y < src->alto; ++y)
-	li 	$s6, 0
-idir_1:	
-	bge	$s6, $s4, idir_2
-	# for (int x = 0; x < src->ancho; ++x) {
-	li	$s7, 0
-
-idir_3:	bge	$s7, $s5, idir_4
-
-	move 	$a0, $s1
-	move	$a1, $s7
-	move	$a2, $s6
-	jal 	imagen_get_pixel
-	
-	beqz   	$v0, idir_31
-	
-	move 	$a0, $s0
-	add	$a1, $s2, $s4
-	subi 	$a1, $a1, 1
-	sub 	$a1, $a1, $s6
-	add	$a2, $s3, $s7
-	move	$a3, $v0
-	jal imagen_set_pixel	
-idir_31:
-	addiu	$s7, $s7, 1
-	j	idir_3	
+    	move	$a0, $s1
+    	move	$a1, $s7
+    	move	$a2, $s6
+    	jal	imagen_get_pixel
+    	beqz	$v0, idir_5
+    	move	$a0, $s0
+    	add	$a1, $s2, $s5
+    	addi	$a1, $a1, -1
+    	sub	$a1, $a1, $s6
+    	add	$a2, $s3, $s7
+    	move	$a3, $v0
+    	jal	imagen_set_pixel
+idir_5:
+    	addiu	$s7, $s7, 1
+    	j	idir_3	
 idir_4:
-	addiu	$s6, $s6, 1
-	j	idir_1
-
+    	addiu	$s6, $s6, 1
+    	j	idir_1
 idir_2:
-	lw	$s0, 0($sp)
-	lw	$s1, 4($sp)
-	lw	$s2, 8($sp)
-	lw	$s3, 12($sp)
-	lw	$s4, 16($sp)
-	lw	$s5, 20($sp)
-	lw	$s6, 24($sp)
-	lw	$s7, 28($sp)
-	lw	$ra, 32($sp)
-	addiu	$sp, $sp, 36
-	jr	$ra	
-
+    	lw	$ra, 0($sp)
+    	lw	$s0, 4($sp)
+    	lw	$s1, 8($sp)
+    	lw	$s2, 12($sp)
+    	lw	$s3, 16($sp)
+    	lw	$s4, 20($sp)
+    	lw	$s5, 24($sp)
+    	lw	$s6, 28($sp)
+    	lw	$s7, 32($sp)
+    	addiu	$sp, $sp, 36
+    	jr	$ra
 
 pieza_aleatoria:
 	addiu	$sp, $sp, -4
@@ -712,53 +663,52 @@ actualizar_pantalla:
 	la	$s2, campo
 	la	$a0, pantalla
 	li	$a1, ' '
-	jal	imagen_clean
+	jal	imagen_clean		# imagen_clean(pantalla, ' ')
         # for (int y = 0; y < campo->alto; ++y) {
-	li	$s1, 0
-ap_2:	lw	$t1, 4($s2)
-	bge	$s1, $t1, ap_3
+	li	$s1, 0			# y = 0
+B10_2:	lw	$t1, 4($s2)		# campo->alto
+	bge	$s1, $t1, B10_3		# sigue si y < campo->alto
 	la	$a0, pantalla
-	li	$a1, 0
-	addi	$a2, $s1, 2
+	li	$a1, 0                  # pos_campo_x - 1
+	addi	$a2, $s1, 2             # y + pos_campo_y
 	li	$a3, '|'
-	jal	imagen_set_pixel
+	jal	imagen_set_pixel	# imagen_set_pixel(pantalla, 0, y, '|')
 	la	$a0, pantalla
-	lw	$t1, 0($s2)
-	addiu	$a1, $t1, 1
-	addiu	$a2, $s1, 2
+	lw	$t1, 0($s2)		# campo->ancho
+	addiu	$a1, $t1, 1		# campo->ancho + 1
+	addiu	$a2, $s1, 2             # y + pos_campo_y
 	li	$a3, '|'
-	jal	imagen_set_pixel
-        addiu	$s1, $s1, 1
-        j       ap_2
-	# for (int x = 0; x < campo->ancho + 2; ++x)
-ap_3:
-	li	$s1, 0
-ap_5:
-	lw	$t1, 0($s2)
-        addiu   $t1, $t1, 2
-        bge	$s1, $t1, ap_6
+	jal	imagen_set_pixel	# imagen_set_pixel(pantalla, campo->ancho + 1, y, '|')
+        addiu	$s1, $s1, 1		# ++y
+        j       B10_2
+        # } // for y
+	# for (int x = 0; x < campo->ancho + 2; ++x) { 
+B10_3:	li	$s1, 0			# x = 0
+B10_5:  lw	$t1, 0($s2)		# campo->ancho
+        addiu   $t1, $t1, 2             # campo->ancho + 2
+        bge	$s1, $t1, B10_6		# sigue si x < campo->ancho + 2
 	la	$a0, pantalla
-	move	$a1, $s1
-        lw	$t1, 4($s2)
-	addiu	$a2, $t1, 2
+	move	$a1, $s1                # pos_campo_x - 1 + x
+        lw	$t1, 4($s2)		# campo->alto
+	addiu	$a2, $t1, 2		# campo->alto + pos_campo_y
 	li	$a3, '-'
-	jal	imagen_set_pixel
-	addiu	$s1, $s1, 1
-	j       ap_5
-ap_6:
-	la	$a0, pantalla
+	jal	imagen_set_pixel	# imagen_set_pixel(pantalla, x, campo->alto + 1, '-')
+	addiu	$s1, $s1, 1		# ++x
+	j       B10_5
+        # } // for x
+B10_6:	la	$a0, pantalla
 	move	$a1, $s2
-	li	$a2, 1
-	li	$a3, 2
-	jal	imagen_dibuja_imagen
+	li	$a2, 1                  # pos_campo_x
+	li	$a3, 2                  # pos_campo_y
+	jal	imagen_dibuja_imagen	# imagen_dibuja_imagen(pantalla, campo, 1, 2)
 	la	$a0, pantalla
 	la	$a1, pieza_actual
 	lw	$t1, pieza_actual_x
-	addiu	$a2, $t1, 1
+	addiu	$a2, $t1, 1		# pieza_actual_x + pos_campo_x
 	lw	$t1, pieza_actual_y
-	addiu	$a3, $t1, 2
-	jal	imagen_dibuja_imagen
-	jal	clear_screen
+	addiu	$a3, $t1, 2		# pieza_actual_y + pos_campo_y
+	jal	imagen_dibuja_imagen	# imagen_dibuja_imagen(pantalla, pieza_actual, pieza_actual_x + pos_campo_x, pieza_actual_y + pos_campo_y)
+	jal	clear_screen		# clear_screen()
 	
 	la	$a0, pantalla
 	la	$a1, str003	
@@ -820,15 +770,17 @@ ap_6:
 	li	$a2, 19
 	li	$a3, 1
 	jal	imagen_dibuja_imagen	
+
 	
 	la	$a0, pantalla
-	jal	imagen_print
+	jal	imagen_print		# imagen_print(pantalla)
 	
 	lw	$s1, 0($sp)
 	lw	$s2, 4($sp)
 	lw	$ra, 8($sp)
 	addiu	$sp, $sp, 12
 	jr	$ra
+
 
 nueva_pieza_actual:
 	# void nueva_pieza_actual(void) {
@@ -838,35 +790,28 @@ nueva_pieza_actual:
   	#    pieza_actual_y = 0;
 	# }
 	
-	addiu	$sp, $sp, -4	
-	sw	$ra, 0($sp)
-	
-	
-	la	$a0, pieza_actual
-	la	$a1, pieza_next
-	jal	imagen_copy	
-	
-	jal	pieza_aleatoria
-	la	$a0, pieza_next
-	move	$a1, $v0
-	jal	imagen_copy
-
-	li	$t0, 8
-	sw 	$t0, pieza_actual_x
-	li	$t1, 0
-	sw 	$t1, pieza_actual_y
-	
-	jal 	clear_screen
-	la	$a0, pantalla
-	jal 	imagen_print
-
-	lw	$ra, 0($sp)
-	addiu	$sp, $sp, 4
-	jr	$ra
+	addiu	$sp, $sp, -4
+    	sw	$ra, 0($sp)
+	la 	$a0, pieza_actual
+	la 	$a1, pieza_next	
+	jal 	imagen_copy
+    	jal	pieza_aleatoria
+    	move	$a1, $v0
+    	la	$a0, pieza_next
+    	jal	imagen_copy
+    	li	$t1, 8
+    	la	$t0, pieza_actual_x
+    	sw	$t1, 0($t0)
+    	li	$t1, 0
+    	la	$t0, pieza_actual_y
+    	sw	$t1, 0($t0)
+    	lw	$ra, 0($sp)
+    	addiu	$sp, $sp, 4
+    	jr	$ra
 	
 
-probar_pieza:
-	addiu	$sp, $sp, -32
+probar_pieza:				# ($a0, $a1, $a2) = (pieza, x, y)
+	addiu	$sp, $sp, -32		# push
 	sw	$ra, 28($sp)
 	sw	$s7, 24($sp)
 	sw	$s6, 20($sp)
@@ -875,53 +820,50 @@ probar_pieza:
 	sw	$s2, 8($sp)
 	sw	$s1, 4($sp)
 	sw	$s0, 0($sp)
-	
-	move	$s0, $a2
-	move	$s1, $a1
-	move	$s2, $a0
+	move	$s0, $a2		# y
+	move	$s1, $a1		# x
+	move	$s2, $a0		# pieza
 	li	$v0, 0
-	bltz	$s1, pp_13
-	lw	$t1, 0($s2)
-	addu	$t1, $s1, $t1
+	bltz	$s1, B12_13		# if (x < 0) return false
+	lw	$t1, 0($s2)		# pieza->ancho
+	addu	$t1, $s1, $t1		# x + pieza->ancho
 	la	$s4, campo
-	lw	$v1, 0($s4)
-	bltu	$v1, $t1, pp_13
-	bltz	$s0, pp_13
-	lw	$t1, 4($s2)
-	addu	$t1, $s0, $t1
-	lw	$v1, 4($s4)
-	bltu	$v1, $t1, pp_13
-	lw	$t1, 0($s2)
-	beqz	$t1, pp_12
-	li	$s3, 0
-	lw	$s7, 4($s2)
-pp_6:
-	beqz	$s7, pp_11
-	li	$s6, 0
-pp_8:
-	move	$a0, $s2
+	lw	$v1, 0($s4)		# campo->ancho
+	bltu	$v1, $t1, B12_13	# if (x + pieza->ancho > campo->ancho) return false
+	bltz	$s0, B12_13		# if (y < 0) return false
+	lw	$t1, 4($s2)		# pieza->alto
+	addu	$t1, $s0, $t1		# y + pieza->alto
+	lw	$v1, 4($s4)		# campo->alto
+	bltu	$v1, $t1, B12_13	# if (campo->alto < y + pieza->alto) return false
+	# for (int i = 0; i < pieza->ancho; ++i) {
+	lw	$t1, 0($s2)		# pieza->ancho
+	beqz	$t1, B12_12
+	li	$s3, 0			# i = 0
+	#   for (int j = 0; j < pieza->alto; ++j) {
+	lw	$s7, 4($s2)		# pieza->alto
+B12_6:	beqz	$s7, B12_11
+	li	$s6, 0			# j = 0
+B12_8:	move	$a0, $s2
 	move	$a1, $s3
 	move	$a2, $s6
-	jal	imagen_get_pixel
-	beqz	$v0, pp_10
+	jal	imagen_get_pixel	# imagen_get_pixel(pieza, i, j)
+	beqz	$v0, B12_10		# if (imagen_get_pixel(pieza, i, j) == PIXEL_VACIO) sigue
 	move	$a0, $s4
-	addu	$a1, $s1, $s3
-	addu	$a2, $s0, $s6
+	addu	$a1, $s1, $s3		# x + i
+	addu	$a2, $s0, $s6		# y + j
 	jal	imagen_get_pixel
-	move	$t1, $v0
+	move	$t1, $v0		# imagen_get_pixel(campo, x + i, y + j)
 	li	$v0, 0
-	bnez	$t1, pp_13
-pp_10:
-	addiu	$s6, $s6, 1
-	bltu	$s6, $s7, pp_8
-pp_11:
-	lw	$t1, 0($s2)
-	addiu	$s3, $s3, 1
-	bltu	$s3, $t1, pp_6
-pp_12:
-	li	$v0, 1
-pp_13:
-	lw	$s0, 0($sp)
+	bnez	$t1, B12_13		# if (imagen_get_pixel(campo, x + i, y + j) != PIXEL_VACIO) return false
+B12_10:	addiu	$s6, $s6, 1		# ++j
+	bltu	$s6, $s7, B12_8		# sigue si j < pieza->alto
+        #   } // for j
+B12_11:	lw	$t1, 0($s2)		# pieza->ancho
+	addiu	$s3, $s3, 1		# ++i
+	bltu	$s3, $t1, B12_6 	# sigue si i < pieza->ancho
+        # } // for i
+B12_12:	li	$v0, 1			# return true
+B12_13:	lw	$s0, 0($sp)
 	lw	$s1, 4($sp)
 	lw	$s2, 8($sp)
 	lw	$s3, 12($sp)
@@ -941,35 +883,32 @@ intentar_movimiento:
  	# }
   	# return false;
 	# }
-	
-	addiu	$sp, $sp, -12
-	sw	$ra, 8($sp)
-	sw	$s0, 4($sp)
-	sw	$s1, 0($sp)
-	
-	move	$s0, $a0
-	move	$s1, $a1
-	
-	la	$a0, pieza_actual
-	move	$a1, $s0
-	move	$a2, $s1
-	jal 	probar_pieza
-	
-	# if (probar_pieza(pieza_actual, x, y))
-	beqz 	$v0, im_1
-	sw	$s0, pieza_actual_x
-	sw	$s1, pieza_actual_y
-	li	$v0, 1
-	j 	im_2
-im_1: 
- 	li	$v0, 0
-	
+
+    	addiu	$sp, $sp, -12
+    	sw	$ra, 0($sp)
+    	sw	$s0, 4($sp)
+    	sw	$s1, 8($sp)
+    	move	$s0, $a0
+    	move	$s1, $a1
+    	la	$a0, pieza_actual
+    	move	$a1, $s0
+    	move	$a2, $s1
+    	jal	probar_pieza
+    	bne	$v0, 1, im_1
+    	la	$t0, pieza_actual_x
+    	sw	$s0, 0($t0)
+   	la	$t0, pieza_actual_y
+    	sw	$s1, 0($t0)
+    	li	$v0, 1
+    	j	im_2
+im_1:
+    	li	$v0, 0
 im_2:
-	lw	$s1, 0($sp)
-	lw	$s0, 4($sp)
-	lw	$ra, 8($sp)
-	addiu	$sp, $sp, 12
-	jr	$ra
+    	lw	$ra, 0($sp)
+    	lw	$s0, 4($sp)
+    	lw	$s1, 8($sp)
+    	addiu	$sp, $sp, 12
+    	jr	$ra
 
 bajar_pieza_actual:
 	# void bajar_pieza_actual(void) {
@@ -980,33 +919,26 @@ bajar_pieza_actual:
 	# }
 	
 	addiu	$sp, $sp, -4
-	sw	$ra, 0($sp)	
-	
-	lw	$a0, pieza_actual_x
-	lw	$a1, pieza_actual_y
-	addi 	$a1, $a1, 1
-	
-	jal intentar_movimiento
-	# if (!intentar_movimiento(pieza_actual_x, pieza_actual_y + 1))
-	bnez  	$v0, bpa_1
-	
-	la	$a0, campo
-	la	$a1, pieza_actual
-	lw	$a2, pieza_actual_x
-	lw	$a3, pieza_actual_y
-	jal 	imagen_dibuja_imagen
-	
-	jal	comprobar_linea
-	
-	jal	nueva_pieza_actual
-	
-	lw	$t9, puntuacion
-	addi	$t9, $t9, 1
-	sw	$t9, puntuacion
-	
-bpa_1:
-	lw	$ra, 0($sp)
-	addiu 	$sp, $sp, 4
+    	sw	$ra, 0($sp)
+
+    	lw	$a0, pieza_actual_x 
+    	lw	$a1, pieza_actual_y
+    	addi	$a1, $a1, 1
+    	jal	intentar_movimiento
+    	beq	$v0, 1, bpa_1
+
+    	la	$a0, campo
+    	la	$a1, pieza_actual
+    	lw	$a2, pieza_actual_x
+    	lw	$a3, pieza_actual_y
+    	jal	imagen_dibuja_imagen 
+
+	jal	linea
+
+    	jal	nueva_pieza_actual
+    	
+bpa_1: 	lw	$ra, 0($sp)
+	addiu	$sp, $sp, 4
 	jr	$ra
 
 intentar_rotar_pieza_actual:
@@ -1019,41 +951,38 @@ intentar_rotar_pieza_actual:
   	#    }
 	# }
 
-	addiu 	$sp, $sp, -8
-	sw	$ra, 4($sp)
-	sw	$s0, 0($sp)
-
-
-	la	$s0, imagen_auxiliar
-	
-	move	$a0, $s0
-	la 	$t0, pieza_actual
-	lw	$a1, 4($t0)		
-	lw	$a2, 0($t0)
-	move	$a3, $zero
-	jal 	imagen_init
-	
-	move	$a0, $s0
-	la	$a1, pieza_actual
-	move	$a2, $zero
-	move	$a3, $zero
-	jal 	imagen_dibuja_imagen_rotada
-	
-	move	$a0, $s0
-	lw	$a1, pieza_actual_x
-	lw	$a2, pieza_actual_y
-	jal	probar_pieza
-	# if (probar_pieza(pieza_rotada, pieza_actual_x, pieza_actual_y)) {
-	beqz	$v0, irpa_1
-	
-	la	$a0, pieza_actual
-	move	$a1, $s0
-	jal	imagen_copy
+	addiu	$sp, $sp, -12
+    	sw	$ra, 0($sp)
+    	sw	$s0, 4($sp)
+    	sw	$s1, 8($sp)
+    	la	$s0, imagen_auxiliar
+    	la	$s1, pieza_actual
+    	move	$a0, $s0
+    	lw	$a1, 4($s1)
+    	lw	$a2, 0($s1)
+    	li	$a3, '\0'
+    	jal	imagen_init
+    	la	$a0, imagen_auxiliar
+    	la	$a1, pieza_actual
+    	li	$a2, 0
+    	li	$a3, 0
+    	jal	imagen_dibuja_imagen_rotada 
+    	la	$a0, imagen_auxiliar
+    	la	$t0, pieza_actual_x
+    	lw	$a1, 0($t0)
+    	la	$t0, pieza_actual_y
+    	lw	$a2, 0($t0)
+    	jal	probar_pieza
+    	bne	$v0, 1, irpa_1
+    	la	$a0, pieza_actual
+    	la	$a1, imagen_auxiliar
+    	jal	imagen_copy
 irpa_1:
-	lw	$s0, 0($sp)
-	lw	$ra, 4($sp)
-	addiu	$sp, $sp, 8
-	jr	$ra
+    	lw	$ra, 0($sp)
+    	lw	$s0, 4($sp)
+    	lw	$s1, 8($sp)
+    	addiu	$sp, $sp, 12
+    	jr	$ra
 
 tecla_salir:
 	li	$v0, 1
